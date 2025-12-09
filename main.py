@@ -7,6 +7,33 @@ from typing import Any
 from src.recommender import MultiLanguageRecommender
 from src.user_profile import UserProfile
 
+try:
+    import pykakasi
+    kakasi = pykakasi.kakasi()
+    kakasi.setMode("H", "a")  # 히라가나를 로마자로
+    kakasi.setMode("K", "a")  # 가타카나를 로마자로
+    kakasi.setMode("J", "a")  # 한자를 로마자로
+    romaji_converter = kakasi.getConverter()
+except ImportError:
+    romaji_converter = None
+
+
+def japanese_to_romaji(text: str) -> str:
+    """일본어 텍스트를 로마자로 변환합니다.
+    
+    Args:
+        text: 일본어 텍스트
+    
+    Returns:
+        로마자로 변환된 텍스트
+    """
+    if romaji_converter is None:
+        return text
+    try:
+        return romaji_converter.do(text)
+    except Exception:
+        return text
+
 
 def find_min_prefix_for_word(
     recommender: MultiLanguageRecommender,
@@ -162,7 +189,7 @@ def test_sentence_autocomplete(
                 prefix = word_lower[:prefix_len]
                 recommendations = []
             
-            word_details.append({
+            word_detail = {
                 'word': word,
                 'word_lower': word_lower,
                 'full_length': len(word_lower),
@@ -173,7 +200,14 @@ def test_sentence_autocomplete(
                     {'word': rec_word, 'score': float(score)}
                     for rec_word, score in recommendations
                 ]
-            })
+            }
+            
+            # 일본어인 경우 로마자 변환 추가
+            if lang == "ja" and romaji_converter:
+                word_detail['romaji'] = japanese_to_romaji(word)
+                word_detail['prefix_romaji'] = japanese_to_romaji(prefix)
+            
+            word_details.append(word_detail)
         else:
             prefix_len = find_min_prefix_for_word(
                 recommender, word_lower, lang, user_profile=user_profile

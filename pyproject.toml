@@ -8,4 +8,5 @@ dependencies = [
     "ruff>=0.14.8",
     "msgpack>=1.0.0",
     "flask>=3.0.0",
+    "pykakasi>=2.3.0",
 ]

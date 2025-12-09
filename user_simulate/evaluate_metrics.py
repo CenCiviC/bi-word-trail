@@ -12,8 +12,17 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from main import find_min_prefix_for_word, split_sentence_to_words
 from src.recommender import MultiLanguageRecommender
-from src.romaji_to_hiragana import japanese_word_to_romaji
 from user_simulate.build_profiles import load_user_sentences, main as build_profiles_main
+
+try:
+    import pykakasi
+    kakasi = pykakasi.kakasi()
+    kakasi.setMode("H", "a")  # 히라가나를 로마자로
+    kakasi.setMode("K", "a")  # 가타카나를 로마자로
+    kakasi.setMode("J", "a")  # 한자를 로마자로
+    converter = kakasi.getConverter()
+except ImportError:
+    converter = None
 
 
 def calculate_precision_at_k(
@@ -127,6 +136,23 @@ def calculate_map(recommended_lists: list[list[str]], relevant_sets: list[set[st
     return sum(aps) / len(aps) if aps else 0.0
 
 
+def japanese_to_romaji(text: str) -> str:
+    """일본어 텍스트를 로마자로 변환합니다.
+    
+    Args:
+        text: 일본어 텍스트
+    
+    Returns:
+        로마자로 변환된 텍스트
+    """
+    if converter is None:
+        return text
+    try:
+        return converter.do(text)
+    except Exception:
+        return text
+
+
 def evaluate_recommendations(
     recommender: MultiLanguageRecommender,
     test_sentences: list[str],
@@ -138,8 +164,6 @@ def evaluate_recommendations(
     
     각 문장의 단어들을 ground truth로 사용하고,
     해당 단어의 접두사로 추천된 결과를 평가합니다.
-    
-    일본어/이탈리아어의 경우, 영어 키보드로 입력한 것처럼 로마자로 변환하여 평가합니다.
     
     Args:
         recommender: 추천 시스템 인스턴스
@@ -160,62 +184,41 @@ def evaluate_recommendations(
     total_chars_without = 0
     total_chars_with = 0
     
+    # 일본어인 경우 로마자 변환 정보 저장
+    word_romaji_map: dict[str, str] = {}
+    
     for sentence in test_sentences:
         words = split_sentence_to_words(sentence, lang)
         
         for word in words:
             word_lower = word.lower()
-            
-            # 일본어/이탈리아어의 경우 로마자로 변환 (영어 키보드 입력 시뮬레이션)
-            if lang == "ja":
-                # 일본어 단어를 로마자로 변환
-                romaji_word = japanese_word_to_romaji(word_lower)
-                # 로마자 입력으로 추천을 받기 위해 사용할 단어
-                input_word = romaji_word.lower()
-                # Ground truth는 원래 히라가나 단어
-                original_word = word_lower
-            elif lang == "it":
-                # 이탈리아어는 이미 로마자이므로 그대로 사용
-                input_word = word_lower
-                original_word = word_lower
-            else:
-                # 영어도 그대로 사용
-                input_word = word_lower
-                original_word = word_lower
-            
             total_words += 1
             
-            # 로마자 입력으로 최소 접두사 길이 찾기
-            min_prefix_result = find_min_prefix_for_word(
-                recommender, input_word, lang, top_n=max(k_values), user_profile=user_profile
+            # 일본어인 경우 로마자 변환 저장
+            if lang == "ja" and converter:
+                romaji = japanese_to_romaji(word)
+                word_romaji_map[word_lower] = romaji
+            
+            # 해당 단어가 추천 목록에 나타나기 위한 최소 접두사 길이 찾기
+            min_prefix_len_result = find_min_prefix_for_word(
+                recommender, word_lower, lang, top_n=max(k_values), user_profile=user_profile, return_details=False
             )
+            # return_details=False이므로 항상 int 반환
+            min_prefix_len = min_prefix_len_result if isinstance(min_prefix_len_result, int) else len(word_lower)
             
-            # 반환값이 튜플인 경우 접두사 길이만 추출
-            if isinstance(min_prefix_result, tuple):
-                min_prefix_len = min_prefix_result[0]
-            else:
-                min_prefix_len = min_prefix_result
-            
-            # 절약율 계산: 로마자 입력 기준으로 계산
-            total_chars_without += len(input_word)
+            # 절약율 계산을 위한 글자 수 누적
+            total_chars_without += len(word_lower)
             total_chars_with += min_prefix_len
             
-            # 로마자 접두사로 추천 받기
-            romaji_prefix = input_word[:min_prefix_len]
+            # 접두사로 추천 받기
+            prefix = word_lower[:min_prefix_len]
             recommendations = recommender.recommend(
-                romaji_prefix, lang=lang, top_n=max(k_values), user_profile=user_profile
+                prefix, lang=lang, top_n=max(k_values), user_profile=user_profile
             )
+            recommended_words = [rec_word.lower() for rec_word, _ in recommendations]
             
-            # 추천 결과를 로마자로 변환 (일본어의 경우)
-            if lang == "ja":
-                recommended_words = [
-                    japanese_word_to_romaji(rec_word.lower()) for rec_word, _ in recommendations
-                ]
-                # Ground truth도 로마자로 변환
-                relevant_items = {japanese_word_to_romaji(original_word)}
-            else:
-                recommended_words = [rec_word.lower() for rec_word, _ in recommendations]
-                relevant_items = {original_word}
+            # Ground truth: 해당 단어가 관련 있는 아이템
+            relevant_items = {word_lower}
             
             # 각 K 값에 대해 평가
             for k in k_values:
@@ -248,6 +251,7 @@ def evaluate_recommendations(
         "total_chars_with": total_chars_with,
         "chars_saved": total_chars_without - total_chars_with,
         "savings_rate": savings_rate,
+        "word_romaji_map": word_romaji_map if lang == "ja" else {},
     }
     
     for k in k_values:
@@ -309,6 +313,15 @@ def main():
         print(f"  평가 단어 수: {general_results['total_words']}")
         print(f"  MAP: {general_results['map']:.4f}")
         print(f"  절약율: {general_results['savings_rate']:.2f}%")
+        
+        # 일본어인 경우 로마자 변환 샘플 출력
+        if lang == "ja" and general_results.get("word_romaji_map"):
+            print("\n  [로마자 변환 샘플]")
+            romaji_map = general_results["word_romaji_map"]
+            sample_words = list(romaji_map.items())[:10]  # 처음 10개만 표시
+            for word, romaji in sample_words:
+                print(f"    {word} -> {romaji}")
+        
         for k in k_values:
             print(
                 f"  Precision@{k}: {general_results['precision_at_k'][k]:.4f}, "
@@ -343,6 +356,15 @@ def main():
                 print(f"  평가 단어 수: {personalized_results['total_words']}")
                 print(f"  MAP: {personalized_results['map']:.4f}")
                 print(f"  절약율: {personalized_results['savings_rate']:.2f}%")
+                
+                # 일본어인 경우 로마자 변환 샘플 출력
+                if lang == "ja" and personalized_results.get("word_romaji_map"):
+                    print("\n  [로마자 변환 샘플]")
+                    romaji_map = personalized_results["word_romaji_map"]
+                    sample_words = list(romaji_map.items())[:10]  # 처음 10개만 표시
+                    for word, romaji in sample_words:
+                        print(f"    {word} -> {romaji}")
+                
                 for k in k_values:
                     print(
                         f"  Precision@{k}: {personalized_results['precision_at_k'][k]:.4f}, "
