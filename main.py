@@ -29,10 +29,16 @@ def main():
     for i, (word, freq) in enumerate(it_recommendations, 1):
         print(f"  {i}. {word:15s} (빈도: {freq:.2e})")
     
-    # 일본어 예제
+    # 일본어 예제 - 히라가나 입력
     print("\n[일본어] 'あ'로 시작하는 단어 추천:")
     ja_recommendations = recommender.recommend("あ", lang="ja", top_n=10)
     for i, (word, freq) in enumerate(ja_recommendations, 1):
+        print(f"  {i}. {word:15s} (빈도: {freq:.2e})")
+    
+    # 일본어 예제 - 로마자 입력 (자동 변환)
+    print("\n[일본어] 'a' (로마자)로 시작하는 단어 추천:")
+    ja_recommendations_romaji = recommender.recommend("a", lang="ja", top_n=10)
+    for i, (word, freq) in enumerate(ja_recommendations_romaji, 1):
         print(f"  {i}. {word:15s} (빈도: {freq:.2e})")
     
     print("\n" + "=" * 60)

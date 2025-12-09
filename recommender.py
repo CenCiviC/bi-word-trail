@@ -2,6 +2,7 @@
 
 from collections import defaultdict
 
+from romaji_to_hiragana import normalize_japanese_input
 from wordfreq_local import get_frequency_dict, word_frequency
 
 
@@ -131,6 +132,10 @@ class MultiLanguageRecommender:
         """
         if lang not in self.recommenders:
             raise ValueError(f"지원하지 않는 언어: {lang}. 지원 언어: {self.languages}")
+        
+        # 일본어인 경우 로마자 입력을 히라가나로 변환
+        if lang == "ja":
+            prefix = normalize_japanese_input(prefix)
         
         return self.recommenders[lang].recommend(prefix, top_n, min_frequency)
 
