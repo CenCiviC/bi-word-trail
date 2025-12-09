@@ -2,8 +2,8 @@
 
 from collections import defaultdict
 
-from romaji_to_hiragana import normalize_japanese_input
-from wordfreq_local import get_frequency_dict, word_frequency
+from src.romaji_to_hiragana import normalize_japanese_input
+from src.wordfreq_local import get_frequency_dict, word_frequency
 
 
 class WordRecommender:

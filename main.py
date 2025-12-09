@@ -1,6 +1,6 @@
 """단어 자동완성 추천 시스템 메인 모듈"""
 
-from recommender import MultiLanguageRecommender
+from src.recommender import MultiLanguageRecommender
 
 
 def main():

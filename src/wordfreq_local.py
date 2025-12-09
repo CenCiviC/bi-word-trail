@@ -9,8 +9,8 @@ from typing import Iterator
 
 import msgpack
 
-# word-trail 폴더 내의 데이터 경로 설정
-WORDFREQ_DATA_PATH = Path(__file__).parent / "data"
+# word-trail 폴더 내의 데이터 경로 설정 (src 폴더에서 상위로 올라가서 data 폴더 찾기)
+WORDFREQ_DATA_PATH = Path(__file__).parent.parent / "data"
 
 
 def read_cBpack(filename: str) -> list[list[str]]:
