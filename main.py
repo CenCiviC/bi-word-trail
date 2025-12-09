@@ -14,7 +14,8 @@ def find_min_prefix_for_word(
     lang: str,
     top_n: int = 10,
     user_profile: UserProfile | None = None,
-) -> int:
+    return_details: bool = False,
+) -> int | tuple[int, str, list[tuple[str, float]]]:
     """단어를 추천 목록의 첫 번째에 나타나게 하는 최소 접두사 길이를 찾습니다.
     
     Args:
@@ -22,9 +23,11 @@ def find_min_prefix_for_word(
         word: 찾을 단어
         lang: 언어 코드
         top_n: 추천 목록 크기
+        user_profile: 사용자 프로필
+        return_details: True면 상세 정보도 반환
     
     Returns:
-        최소 접두사 길이 (단어 전체 길이보다 크면 단어 전체 길이 반환)
+        최소 접두사 길이 또는 (접두사 길이, 접두사, 추천 목록) 튜플
     """
     word_lower = word.lower()
     
@@ -38,9 +41,13 @@ def find_min_prefix_for_word(
         # 추천 목록에서 해당 단어 찾기 (대소문자 무시)
         for rec_word, _ in recommendations:
             if rec_word.lower() == word_lower:
+                if return_details:
+                    return (prefix_len, prefix, recommendations[:5])  # 상위 5개만
                 return prefix_len
     
     # 추천 목록에 없으면 전체 길이 반환
+    if return_details:
+        return (len(word_lower), word_lower, [])
     return len(word_lower)
 
 
@@ -117,6 +124,7 @@ def test_sentence_autocomplete(
     sentence: str,
     lang: str,
     user_profile: UserProfile | None = None,
+    return_word_details: bool = False,
 ) -> dict[str, Any] | None:
     """문장에 대해 자동완성 효율을 테스트합니다.
     
@@ -124,9 +132,11 @@ def test_sentence_autocomplete(
         recommender: 추천 시스템 인스턴스
         sentence: 테스트할 문장
         lang: 언어 코드
+        user_profile: 사용자 프로필
+        return_word_details: True면 각 단어별 상세 정보 반환
     
     Returns:
-        테스트 결과 딕셔너리 (출력 없음)
+        테스트 결과 딕셔너리
     """
     # 문장을 언어에 맞게 단어로 분리
     words: list[str] = split_sentence_to_words(sentence, lang)
@@ -136,17 +146,45 @@ def test_sentence_autocomplete(
     
     total_chars_without_autocomplete = 0
     total_chars_with_autocomplete = 0
+    word_details: list[dict[str, Any]] = []
     
     for word in words:
         word_lower: str = word.lower()
-        min_prefix_len = find_min_prefix_for_word(
-            recommender, word_lower, lang, user_profile=user_profile
-        )
+        
+        if return_word_details:
+            result = find_min_prefix_for_word(
+                recommender, word_lower, lang, user_profile=user_profile, return_details=True
+            )
+            if isinstance(result, tuple):
+                prefix_len, prefix, recommendations = result
+            else:
+                prefix_len = result
+                prefix = word_lower[:prefix_len]
+                recommendations = []
+            
+            word_details.append({
+                'word': word,
+                'word_lower': word_lower,
+                'full_length': len(word_lower),
+                'prefix': prefix,
+                'prefix_length': prefix_len,
+                'chars_saved': len(word_lower) - prefix_len,
+                'recommendations': [
+                    {'word': rec_word, 'score': float(score)}
+                    for rec_word, score in recommendations
+                ]
+            })
+        else:
+            prefix_len = find_min_prefix_for_word(
+                recommender, word_lower, lang, user_profile=user_profile
+            )
+            if isinstance(prefix_len, tuple):
+                prefix_len = prefix_len[0]
         
         total_chars_without_autocomplete += len(word_lower)
-        total_chars_with_autocomplete += min_prefix_len
+        total_chars_with_autocomplete += prefix_len
     
-    return {
+    result: dict[str, Any] = {
         'sentence': sentence,
         'lang': lang,
         'word_count': len(words),
@@ -155,6 +193,11 @@ def test_sentence_autocomplete(
         'chars_saved': total_chars_without_autocomplete - total_chars_with_autocomplete,
         'savings_rate': (1 - total_chars_with_autocomplete / total_chars_without_autocomplete) * 100 if total_chars_without_autocomplete > 0 else 0
     }
+    
+    if return_word_details:
+        result['word_details'] = word_details
+    
+    return result
 
 
 def main():

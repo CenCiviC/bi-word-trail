@@ -1,0 +1,252 @@
+{
+	"brand": {
+		"name": "Linear",
+		"description": "Linear Brand Guidelines 테마 데이터"
+	},
+	"colors": {
+		"primary": {
+			"name": "Magic Blue",
+			"hex": "#5E6AD2",
+			"rgb": "94, 106, 210",
+			"rgbValues": {
+				"r": 94,
+				"g": 106,
+				"b": 210
+			},
+			"description": "Linear의 주요 브랜드 색상 - 채도가 낮은 파란색"
+		},
+		"light": {
+			"name": "Mercury White",
+			"hex": "#F4F5F8",
+			"rgb": "244, 245, 248",
+			"rgbValues": {
+				"r": 244,
+				"g": 245,
+				"b": 248
+			},
+			"description": "밝은 배경용 악센트 색상"
+		},
+		"dark": {
+			"name": "Pure White",
+			"hex": "#FFFFFF",
+			"rgb": "255, 255, 255",
+			"rgbValues": {
+				"r": 255,
+				"g": 255,
+				"b": 255
+			},
+			"description": "라이트 모드용 흰색 배경"
+		},
+		"semantic": {
+			"blue": "#4ea7fc",
+			"red": "#eb5757",
+			"green": "#4cb782",
+			"orange": "#fc7840",
+			"yellow": "#f2c94c",
+			"indigo": "#5e6ad2",
+			"white": "#fff",
+			"black": "#000"
+		},
+		"background": {
+			"primary": "rgb(249, 250, 251)",
+			"hex": "#F9FAFB"
+		},
+		"text": {
+			"primary": "rgb(17, 24, 39)",
+			"hex": "#111827",
+			"secondary": "rgb(75, 85, 99)",
+			"hexSecondary": "#4B5563"
+		}
+	},
+	"typography": {
+		"fontFamily": {
+			"primary": "\"Inter Variable\", \"SF Pro Display\", -apple-system, \"system-ui\", \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Open Sans\", \"Helvetica Neue\", sans-serif",
+			"serif": "\"Tiempos Headline\", ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif",
+			"monospace": "\"Berkeley Mono\", ui-monospace, \"SF Mono\", \"Menlo\", monospace",
+			"emoji": "\"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Segoe UI\", \"Twemoji Mozilla\", \"Noto Color Emoji\", \"Android Emoji\""
+		},
+		"fontWeights": {
+			"light": "300",
+			"normal": "400",
+			"medium": "510",
+			"semibold": "590",
+			"bold": "680"
+		},
+		"fontSizes": {
+			"micro": "0.6875rem",
+			"mini": "0.75rem",
+			"small": "0.8125rem",
+			"regular": "0.9375rem",
+			"large": "1.125rem",
+			"title1": "2.25rem",
+			"title2": "1.5rem",
+			"title3": "1.25rem"
+		},
+		"headings": {
+			"h1": {
+				"fontFamily": "\"Inter Variable\", \"SF Pro Display\", -apple-system, \"system-ui\", \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Open Sans\", \"Helvetica Neue\", sans-serif",
+				"fontSize": "40px",
+				"fontWeight": "590",
+				"lineHeight": "44px",
+				"color": "rgb(17, 24, 39)",
+				"letterSpacing": "-0.88px"
+			},
+			"h2": {
+				"fontSize": "1.5rem",
+				"fontWeight": "590",
+				"lineHeight": "1.33"
+			},
+			"h3": {
+				"fontSize": "1.25rem",
+				"fontWeight": "590",
+				"lineHeight": "1.33"
+			}
+		},
+		"body": {
+			"fontSize": "16px",
+			"fontWeight": "400",
+			"lineHeight": "24px",
+			"color": "rgb(17, 24, 39)"
+		},
+		"paragraph": {
+			"fontSize": "15px",
+			"fontWeight": "400",
+			"lineHeight": "24px",
+			"color": "rgb(75, 85, 99)"
+		}
+	},
+	"spacing": {
+		"headerHeight": "64px",
+		"pagePaddingInline": "24px",
+		"pagePaddingBlock": "64px",
+		"pageMaxWidth": "1024px",
+		"proseMaxWidth": "624px",
+		"gridColumns": "12"
+	},
+	"borderRadius": {
+		"small": "4px",
+		"medium": "8px",
+		"large": "12px",
+		"xlarge": "16px",
+		"xxlarge": "24px",
+		"xxxlarge": "32px",
+		"rounded": "9999px",
+		"circle": "50%"
+	},
+	"components": {
+		"button": {
+			"backgroundColor": "transparent",
+			"color": "rgb(75, 85, 99)",
+			"padding": "0px 12px",
+			"borderRadius": "8px",
+			"border": "none",
+			"fontSize": "13px",
+			"fontWeight": "510",
+			"fontFamily": "\"Inter Variable\", \"SF Pro Display\", -apple-system, \"system-ui\", \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Open Sans\", \"Helvetica Neue\", sans-serif"
+		},
+		"link": {
+			"color": "rgb(17, 24, 39)",
+			"textDecoration": "none",
+			"fontSize": "14px",
+			"fontWeight": "510"
+		},
+		"container": {
+			"maxWidth": "none",
+			"padding": "64px 0px 0px",
+			"margin": "0px"
+		}
+	},
+	"shadows": {
+		"none": "0px 0px 0px transparent",
+		"tiny": "0px 0px 0px transparent",
+		"low": "0px 0px 0px transparent",
+		"medium": "0px 0px 0px transparent",
+		"high": "0px 0px 0px transparent"
+	},
+	"transitions": {
+		"quick": "0.1s",
+		"regular": "0.25s",
+		"highlightFadeIn": "0s",
+		"highlightFadeOut": "0.15s"
+	},
+	"easing": {
+		"easeInQuad": "cubic-bezier(0.55, 0.085, 0.68, 0.53)",
+		"easeOutQuad": "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+		"easeInOutQuad": "cubic-bezier(0.455, 0.03, 0.515, 0.955)",
+		"easeInCubic": "cubic-bezier(0.55, 0.055, 0.675, 0.19)",
+		"easeOutCubic": "cubic-bezier(0.215, 0.61, 0.355, 1)",
+		"easeInOutCubic": "cubic-bezier(0.645, 0.045, 0.355, 1)",
+		"easeOutExpo": "cubic-bezier(0.19, 1, 0.22, 1)",
+		"easeInOutExpo": "cubic-bezier(1, 0, 0, 1)"
+	},
+	"layers": {
+		"max": "10000",
+		"debug": "5100",
+		"skipNav": "5000",
+		"contextMenu": "1200",
+		"tooltip": "1100",
+		"toasts": "800",
+		"dialog": "700",
+		"dialogOverlay": "699",
+		"commandMenu": "650",
+		"popover": "600",
+		"overlay": "500",
+		"header": "100",
+		"scrollbar": "75",
+		"footer": "50"
+	},
+	"scrollbar": {
+		"color": "rgba(0, 0, 0, 0.1)",
+		"colorHover": "rgba(0, 0, 0, 0.2)",
+		"colorActive": "rgba(0, 0, 0, 0.4)",
+		"size": "6px",
+		"sizeActive": "10px",
+		"gap": "4px"
+	},
+	"focus": {
+		"ringColor": "#5e6ad2",
+		"ringWidth": "2px",
+		"ringOffset": "2px"
+	},
+	"cssVariables": {
+		"--header-height": "64px",
+		"--header-blur": "20px",
+		"--page-padding-inline": "24px",
+		"--page-padding-block": "64px",
+		"--page-max-width": "1024px",
+		"--prose-max-width": "624px",
+		"--grid-columns": "12",
+		"--radius-4": "4px",
+		"--radius-6": "6px",
+		"--radius-8": "8px",
+		"--radius-12": "12px",
+		"--radius-16": "16px",
+		"--radius-24": "24px",
+		"--radius-32": "32px",
+		"--radius-rounded": "9999px",
+		"--radius-circle": "50%",
+		"--border-hairline": "1px",
+		"--font-regular": "\"Inter Variable\",\"SF Pro Display\",-apple-system,BlinkMacSystemFont,\"Segoe UI\",\"Roboto\",\"Oxygen\",\"Ubuntu\",\"Cantarell\",\"Open Sans\",\"Helvetica Neue\",sans-serif",
+		"--font-weight-light": "300",
+		"--font-weight-normal": "400",
+		"--font-weight-medium": "510",
+		"--font-weight-semibold": "590",
+		"--font-weight-bold": "680",
+		"--color-indigo": "#5e6ad2",
+		"--color-white": "#fff",
+		"--color-black": "#000",
+		"--color-blue": "#4ea7fc",
+		"--color-red": "#eb5757",
+		"--color-green": "#4cb782",
+		"--color-orange": "#fc7840",
+		"--color-yellow": "#f2c94c",
+		"--focus-ring-color": "var(--color-indigo)",
+		"--focus-ring-width": "2px",
+		"--focus-ring-offset": "2px"
+	},
+	"designPrinciples": {
+		"spacing": "요소 주변에 충분한 공간을 제공하세요. 크거나 작게 만들되, 숨 쉴 공간을 주세요.",
+		"clarity": "압박감이나 복잡함을 느끼지 않도록 하세요.",
+		"consistency": "브랜드 색상과 타이포그래피를 일관되게 사용하세요."
+	}
+}
