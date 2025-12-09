@@ -3,6 +3,7 @@
 from collections import defaultdict
 
 from src.romaji_to_hiragana import normalize_japanese_input
+from src.user_profile import UserProfile
 from src.wordfreq_local import get_frequency_dict, word_frequency
 
 
@@ -51,17 +52,24 @@ class WordRecommender:
         print(f"[{self.lang}] 인덱스 구축 완료: {len(self.prefix_index)}개 접두사")
 
     def recommend(
-        self, prefix: str, top_n: int = 10, min_frequency: float | None = None
+        self,
+        prefix: str,
+        top_n: int = 10,
+        min_frequency: float | None = None,
+        user_profile: UserProfile | None = None,
     ) -> list[tuple[str, float]]:
         """접두사로 시작하는 단어들을 빈도 순으로 추천
+        
+        사용자 프로필이 제공되면 개인화된 추천을 제공합니다.
         
         Args:
             prefix: 검색할 접두사 (예: "wo")
             top_n: 반환할 최대 단어 개수
             min_frequency: 최소 빈도 임계값 (None이면 제한 없음)
+            user_profile: 사용자 프로필 (개인화 추천용, 선택사항)
         
         Returns:
-            (단어, 빈도) 튜플의 리스트, 빈도 순으로 정렬됨
+            (단어, 점수) 튜플의 리스트, 점수 순으로 정렬됨
         """
         prefix_lower = prefix.lower()
         
@@ -72,7 +80,18 @@ class WordRecommender:
         if min_frequency is not None:
             candidates = [(word, freq) for word, freq in candidates if freq >= min_frequency]
         
-        # 상위 N개 반환
+        # 사용자 프로필이 있으면 개인화된 점수 계산
+        if user_profile:
+            scored_candidates = []
+            for word, base_freq in candidates:
+                personalized_score = user_profile.get_word_score(word, base_freq)
+                scored_candidates.append((word, personalized_score))
+            
+            # 개인화된 점수로 정렬
+            scored_candidates.sort(key=lambda x: x[1], reverse=True)
+            return scored_candidates[:top_n]
+        
+        # 사용자 프로필이 없으면 기본 빈도 순으로 정렬
         return candidates[:top_n]
 
     def get_word_frequency(self, word: str) -> float:
@@ -118,6 +137,7 @@ class MultiLanguageRecommender:
         lang: str,
         top_n: int = 10,
         min_frequency: float | None = None,
+        user_profile: UserProfile | None = None,
     ) -> list[tuple[str, float]]:
         """특정 언어에 대해 단어 추천
         
@@ -126,9 +146,10 @@ class MultiLanguageRecommender:
             lang: 언어 코드
             top_n: 반환할 최대 단어 개수
             min_frequency: 최소 빈도 임계값
+            user_profile: 사용자 프로필 (개인화 추천용, 선택사항)
         
         Returns:
-            (단어, 빈도) 튜플의 리스트
+            (단어, 점수) 튜플의 리스트
         """
         if lang not in self.recommenders:
             raise ValueError(f"지원하지 않는 언어: {lang}. 지원 언어: {self.languages}")
@@ -137,7 +158,7 @@ class MultiLanguageRecommender:
         if lang == "ja":
             prefix = normalize_japanese_input(prefix)
         
-        return self.recommenders[lang].recommend(prefix, top_n, min_frequency)
+        return self.recommenders[lang].recommend(prefix, top_n, min_frequency, user_profile)
 
     def get_word_frequency(self, word: str, lang: str) -> float:
         """특정 언어에서 단어의 빈도 조회

@@ -11,3 +11,6 @@ wheels/
 
 # ruff
 .ruff_cache/
+
+# User simulation sentences data
+user_simulate/sentences/

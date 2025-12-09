@@ -5,10 +5,15 @@ from pathlib import Path
 from typing import Any
 
 from src.recommender import MultiLanguageRecommender
+from src.user_profile import UserProfile
 
 
 def find_min_prefix_for_word(
-    recommender: MultiLanguageRecommender, word: str, lang: str, top_n: int = 10
+    recommender: MultiLanguageRecommender,
+    word: str,
+    lang: str,
+    top_n: int = 10,
+    user_profile: UserProfile | None = None,
 ) -> int:
     """단어를 추천 목록의 첫 번째에 나타나게 하는 최소 접두사 길이를 찾습니다.
     
@@ -26,7 +31,9 @@ def find_min_prefix_for_word(
     # 접두사를 하나씩 늘려가며 테스트
     for prefix_len in range(1, len(word_lower) + 1):
         prefix = word_lower[:prefix_len]
-        recommendations = recommender.recommend(prefix, lang=lang, top_n=top_n)
+        recommendations = recommender.recommend(
+            prefix, lang=lang, top_n=top_n, user_profile=user_profile
+        )
         
         # 추천 목록에서 해당 단어 찾기 (대소문자 무시)
         for rec_word, _ in recommendations:
@@ -105,7 +112,12 @@ def split_sentence_to_words(sentence: str, lang: str) -> list[str]:
         return words
 
 
-def test_sentence_autocomplete(recommender: MultiLanguageRecommender, sentence: str, lang: str) -> dict[str, Any] | None:
+def test_sentence_autocomplete(
+    recommender: MultiLanguageRecommender,
+    sentence: str,
+    lang: str,
+    user_profile: UserProfile | None = None,
+) -> dict[str, Any] | None:
     """문장에 대해 자동완성 효율을 테스트합니다.
     
     Args:
@@ -127,7 +139,9 @@ def test_sentence_autocomplete(recommender: MultiLanguageRecommender, sentence: 
     
     for word in words:
         word_lower: str = word.lower()
-        min_prefix_len = find_min_prefix_for_word(recommender, word_lower, lang)
+        min_prefix_len = find_min_prefix_for_word(
+            recommender, word_lower, lang, user_profile=user_profile
+        )
         
         total_chars_without_autocomplete += len(word_lower)
         total_chars_with_autocomplete += min_prefix_len
@@ -205,6 +219,7 @@ def main():
     
     # 파일에서 테스트 문장 읽기
     test_sentences_from_files(recommender)
+    
 
 
 def load_test_sentences(lang: str) -> list[str]:
@@ -300,6 +315,8 @@ def test_sentences_from_files(recommender: MultiLanguageRecommender) -> None:
         print(f"\n전체 합계:")
         print(f"  총 절약 글자 수: {all_total_saved}")
         print(f"  전체 평균 절약률: {all_avg_rate:.1f}%")
+
+
 
 
 if __name__ == "__main__":
